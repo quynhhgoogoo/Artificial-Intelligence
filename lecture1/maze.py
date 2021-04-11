@@ -3,12 +3,12 @@ import sys
 # Intialize node for graph
 class Node():
     def __init__(self, state, parent, action):
-        self.state = state
+        self.state = state              # coordinate of the node
         self.parent = parent
-        self.action = action
+        self.action = action            # moving direction 
 
 # Initilize queue frontier for BFS
-class QueueFrontier():
+class StackFrontier():
     def __init__(self):
         # Create an empty list to store the frontier
         self.frontier = []
@@ -17,7 +17,7 @@ class QueueFrontier():
     def add(self, node):
         self.frontier.append(node)
 
-    # Check if node inside frontier contains state
+    # Check if frontier contains node
     def contains_state(self, state):
         return any(node.state == state for node in self.frontier)
 
@@ -36,7 +36,7 @@ class QueueFrontier():
             return node
 
 # Initialize stack frontier for DFS
-class StackFrontier(QueueFrontier):
+class QueueFrontier(StackFrontier):
     def remove(self):
         if self.empty():
             raise Exception("Empty frontier")
@@ -56,9 +56,9 @@ class Maze():
         
         # Check if start point and goal point are valid
         if contents.count("A") != 1:
-            raise.Exception("Maze needs to have exactly one start point")
+            raise Exception("Maze needs to have exactly one start point")
         if contents.count("B") != 1:
-            raise.Exception("Maze needs to have exactly one goal point")
+            raise Exception("Maze needs to have exactly one goal point")
         
         # Determine height and width of maze
         # Converting txt file as a list of splitted elements (maze row)
@@ -70,7 +70,7 @@ class Maze():
         self.walls = []
         for i in range(self.height):
             row = []
-            for i in range(self.width):
+            for j in range(self.width):
                 try:
                     if contents[i][j] == "A":
                         self.start = (i, j)
@@ -86,14 +86,28 @@ class Maze():
                     row.append(False)
                 
                 self.walls.append(row)
+            # Create a list to store solution node
             self.solution = None
 
     # Print out solution
     def print_path(self):
-        if self.solution is not None:
-            solution = self.solution[1]
-        
-        pass
+        solution = self.solution[1] if self.solution is not None else None
+        print()
+
+        for i, row in enumerate(self.walls):
+            for j, col in enumerate(row):
+                if col:
+                    print("█", end="")
+                elif (i,j) == self.start:
+                    print("A", end="")
+                elif (i,j) == self.goal:
+                    print("B", end="")
+                elif solution is not None and (i,j) in solution:
+                    print("*", end="")
+                else:
+                    print(" ", end="")
+            print()
+        print()
 
     # Adding neighbour node to explored table
     def neighbours(self,state):
@@ -109,10 +123,10 @@ class Maze():
 
         # Store all accessible node to a neighbour table
         result = []
-        for acition, (row, colummn) in candidates:
+        for action, (row, column) in candidates:
             # If node is accessible to build a path
-            if (0 < = row < self.height) and (0 <= column < self.width) and not self.walls[row][columns]:
-                result.append((actions, (row,colummn)))
+            if (0 <= row < self.height) and (0 <= column < self.width) and not self.walls[row][column]:
+                result.append((action, (row,column)))
             return result
 
     # Find solution to maze
@@ -126,7 +140,42 @@ class Maze():
         frontier = StackFrontier()
         frontier.add(start)
 
-        pass
+        # Initialize empty explored set
+        self.explored = set()
+
+        while True:
+            # Check if frontier is empty
+            if frontier.empty():
+                raise Exception("No solution found")
+
+            # Retrieve one node from frontier
+            node = frontier.remove()
+            self.num_explored += 1
+
+            # Check if node is goal
+            if node.state == self.goal:
+                actions = []
+                cells = []
+                # Store all the node and its state in path solution
+                while node.parent is not None:
+                    actions.append(node.action)
+                    cells.append(node.state)
+                    node = node.parent
+                
+                # Create a route from start point to goal
+                actions.reverse()
+                cells.reverse()
+                self.solution = (actions, cells)
+                return None
+
+            # Mark node as explored
+            self.explored.add(node.state)
+
+            # Add node's neighbor to frontier
+            for action, state in self.neighbours(node.state):
+                if not frontier.contains_state(state) and state not in self.explored:
+                    child = Node(state = state, parent = node, action = action)
+                    frontier.add(child)
 
     # Draw solution as an image
     # show_solution: show the path to goal after searching
@@ -146,6 +195,7 @@ if __name__ == '__main__':
     
     print("Solving maze")
     m.solve()
+    print("States Explored:", m.num_explored)
     print("Solution: ")
     m.print_path()
 
