@@ -48,19 +48,84 @@ class StackFrontier(QueueFrontier):
 
 # Initialize class for maze
 class Maze():
+    # Construct maze with maze width/height, walls, start and goal point, solution bool
     def __init__(self, filename):
-        pass
+        # Read file and set up the maze
+        with open(filename) as f:
+            contents = f.read()
+        
+        # Check if start point and goal point are valid
+        if contents.count("A") != 1:
+            raise.Exception("Maze needs to have exactly one start point")
+        if contents.count("B") != 1:
+            raise.Exception("Maze needs to have exactly one goal point")
+        
+        # Determine height and width of maze
+        # Converting txt file as a list of splitted elements (maze row)
+        contents = contents.splitlines()
+        self.height = len(contents)
+        self.width = max(len(line) for line in contents)
+
+        # Keep track of obstacles
+        self.walls = []
+        for i in range(self.height):
+            row = []
+            for i in range(self.width):
+                try:
+                    if contents[i][j] == "A":
+                        self.start = (i, j)
+                        row.append(False)
+                    elif contents[i][j] == "B":
+                        self.goal = (i, j)
+                        row.append(False)
+                    elif contents[i][j] == " ":
+                        row.append(False)
+                    else:
+                        row.append(True)
+                except IndexError:
+                    row.append(False)
+                
+                self.walls.append(row)
+            self.solution = None
 
     # Print out solution
     def print_path(self):
+        if self.solution is not None:
+            solution = self.solution[1]
+        
         pass
 
     # Adding neighbour node to explored table
     def neighbours(self,state):
-        pass
+        row, col = state
+
+        # Store the coordinate of neighbour node [actions, (row, column)]
+        candidates = [
+            ("up", (row - 1, col)),
+            ("down", (row + 1, col)),
+            ("left", (row, col - 1)),
+            ("right", (row, col + 1))
+        ]
+
+        # Store all accessible node to a neighbour table
+        result = []
+        for acition, (row, colummn) in candidates:
+            # If node is accessible to build a path
+            if (0 < = row < self.height) and (0 <= column < self.width) and not self.walls[row][columns]:
+                result.append((actions, (row,colummn)))
+            return result
 
     # Find solution to maze
     def solve(self):
+        
+        # Keep track of number of states that has been explored
+        self.num_explored = 0
+
+        # Initialize frontier and add the starting/root node
+        start = Node(state = self.start, parent=None, action=None)
+        frontier = StackFrontier()
+        frontier.add(start)
+
         pass
 
     # Draw solution as an image
@@ -74,7 +139,7 @@ if __name__ == '__main__':
     if len(sys.argv) != 2:
         sys.exit("Usage: python maze.py maze.txt")
 
-    m = Maze(sys.arg[1])
+    m = Maze(sys.argv[1])
     
     print("Maze: ")
     m.print_path()
