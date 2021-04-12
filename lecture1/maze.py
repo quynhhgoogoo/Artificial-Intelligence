@@ -85,9 +85,9 @@ class Maze():
                 except IndexError:
                     row.append(False)
                 
-                self.walls.append(row)
-            # Create a list to store solution node
-            self.solution = None
+            self.walls.append(row)
+        # Create a list to store solution node
+        self.solution = None
 
     # Print out solution
     def print_path(self):
@@ -127,7 +127,7 @@ class Maze():
             # If node is accessible to build a path
             if (0 <= row < self.height) and (0 <= column < self.width) and not self.walls[row][column]:
                 result.append((action, (row,column)))
-            return result
+        return result
 
     # Find solution to maze
     def solve(self):
