@@ -181,7 +181,57 @@ class Maze():
     # show_solution: show the path to goal after searching
     # show_explore: show all the node that the algorithm has itterated through
     def output_image(self, filename, show_solution = True, show_explore = False):
-        pass
+        from PIL import Image, ImageDraw
+        cell_size = 50
+        cell_border = 2
+
+        # Create blank canvas
+        img = Image.new (
+            "RGBA",
+            (self.width * cell_size, self.height * cell_size),
+            "black"
+        )
+        draw = ImageDraw.Draw(img)
+        
+        # solution = self.solution[1] if self.solution is not None else None
+        for i, row in enumerate(self.walls):
+            for j, col in enumerate(row):
+                
+                # Fill color for walls
+                if col:
+                    fill = (40,40,40)
+                
+                # Start point
+                elif (i,j) == self.start:
+                    fill = (255, 0, 0)
+                
+                # Goal point
+                elif (i,j) == self.goal:
+                    fill = (0, 171, 28)
+
+                # Solution
+                elif show_solution and self.solution is not None and (i, j) in self.solution:
+                    fill = (220, 235, 113)
+
+                # Explored node
+                elif show_explore and self.solution is not None and (i,j) in self.explored:
+                    fill = (212, 97, 85)
+
+                # Empty cell
+                else:
+                    fill = (237, 240, 252)
+
+                # Draw cell
+                draw.rectangle(
+                    ([
+                        (j * cell_size + cell_border, i * cell_size + cell_border),
+                        ( (j + 1) * cell_size - cell_border, (i + 1) * cell_size - cell_border)
+                    ]),
+                    fill = fill
+                )
+
+        img.save(filename)
+        print("Picture saved sucessfully")
 
 if __name__ == '__main__':
     # If the arguments is not passed correctly
@@ -200,3 +250,4 @@ if __name__ == '__main__':
     m.print_path()
 
     m.output_image("maze.png", show_explore=True)
+    
