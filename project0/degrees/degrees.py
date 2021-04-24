@@ -55,7 +55,7 @@ def load_data(directory):
 def main():
     if len(sys.argv) > 2:
         sys.exit("Usage: python degrees.py [directory]")
-    directory = sys.argv[1] if len(sys.argv) == 2 else "large"
+    directory = sys.argv[1] if len(sys.argv) == 2 else "small"
 
     # Load data from files into memory
     print("Loading data...")
@@ -92,9 +92,52 @@ def shortest_path(source, target):
     If no possible path, returns None.
     """
 
-    # TODO
-    raise NotImplementedError
+    # Keep track of number of states that has been explored
+    num_explored = 0
 
+    # Initialize frontier and add the starting/root node
+    start = Node(state = source, parent=None, action=None)
+    frontier = StackFrontier()
+    frontier.add(start)
+
+    # Initialize empty explored set
+    explored = set()
+
+    while True:
+        # Check if frontier is empty
+        if frontier.empty():
+            raise Exception("No solution found")
+
+        # Retrieve one node from frontier
+        node = frontier.remove()
+        num_explored += 1
+
+        # Check if node is goal
+        if node.state == target:
+            actions = []
+            cells = []
+            # Store all the node and its state in path solution
+            while node.parent is not None:
+                actions.append(node.action)
+                cells.append(node.state)
+                node = node.parent
+                
+            # Create a route from start point to goal
+            actions.reverse()
+            cells.reverse()
+            solution = []
+            for i in range(len(actions)):
+                solution.append((actions[i], cells[i]))
+            return solution
+
+        # Mark node as explored
+        explored.add(node.state)
+
+        # Add node's neighbor to frontier
+        for action, state in neighbors_for_person(node.state):
+            if not frontier.contains_state(state) and state not in explored:
+                child = Node(state = state, parent = node, action = action)
+                frontier.add(child)
 
 def person_id_for_name(name):
     """
