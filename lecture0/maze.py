@@ -166,6 +166,7 @@ class Maze():
                 actions.reverse()
                 cells.reverse()
                 self.solution = (actions, cells)
+                print("Solution:", self.solution)
                 return None
 
             # Mark node as explored
