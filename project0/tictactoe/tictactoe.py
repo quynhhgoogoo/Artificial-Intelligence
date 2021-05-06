@@ -40,10 +40,10 @@ def player(board):
     # Decide which player will go on next move            
     if num_of_empty == 0:
         return None
-    elif num_of_O > num_of_X:
-        return X
-    else:
+    elif num_of_X > num_of_O:
         return O
+    else:
+        return X
 
 def actions(board):
     """
