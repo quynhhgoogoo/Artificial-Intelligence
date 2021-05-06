@@ -49,28 +49,29 @@ def actions(board):
     """
     Returns set of all possible actions (i, j) available on the board.
     """
-    result = set()
+    possible_moves = []
+    
+    for row in range (0,3):
+        for col in range (0,3):
+            if board[row][col] == EMPTY:
+                possible_moves.append((row,col))
 
-    for i in range(3):
-        for j in range(3):
-            if board[i][j] == EMPTY:
-                result.add((i, j))
-    return result
+    return possible_moves
 
 def result(board, action):
     """
     Returns the board that results from making move (i, j) on the board.
     """
+    result_board = copy.deepcopy(board)
+    possible_moves = actions(board)
 
-    if terminal(board):
-        raise ValueError("Game over.")
-    elif action not in actions(board):
-        raise ValueError("Invalid action.")
+    # If player made an invalid move
+    if action not in possible_moves:
+        raise NameError("Invalid action")
     else:
-        p = player(board)
-        result_board = copy.deepcopy(board)
-        (i, j) = action
-        result_board[i][j] = p
+        (row,col) = action
+        result_board[row][col] = player(board)
+    return result_board
 
 def winner(board):
     """
