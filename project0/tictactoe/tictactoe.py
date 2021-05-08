@@ -83,7 +83,7 @@ def winner(board):
             if board[row][0] == X:
                 return X
             else:
-                return Y
+                return O
     
     # Check winner in column
     for col in range (0,3):
@@ -91,20 +91,20 @@ def winner(board):
             if board[row][0] == X:
                 return X
             else:
-                return Y
+                return O
 
     # Check winner diagonally
     if board[0][0] == board[1][1] == board [2][2] != None:
         if board[0][0] == X:
             return X
         else:
-            return Y
+            return O
     
     if board[0][2] == board[1][1] == board [2][0] != None:
         if board[0][0] == X:
             return X
         else:
-            return Y
+            return O
 
     return None
 
@@ -131,8 +131,63 @@ def utility(board):
         return 0
 
 
+def min_ultility(board):
+    """
+    Returns the minimum ultility of the game
+    """
+    if terminal(board):
+        return utility(board)
+
+    # As opponent is max player, they attempt to gain higher score    
+    opponent = math.inf
+    possible_moves = actions(board)
+
+    for move in possible_moves:
+        result_board = result(board, move)
+        player_min = min(opponent, max_ultility(result_board))
+
+    return player_min
+
+def max_ultility(board):
+    """
+    Returns the maximum ultility of the game
+    """
+    if terminal(board):
+        return utility(board)
+
+    # As opponent is min player, they attempt to gain lower score    
+    opponent = -math.inf
+    possible_moves = actions(board)
+
+    for move in possible_moves:
+        result_board = result(board, move)
+        player_max = max(opponent, min_ultility(result_board))
+
+    return player_max
+
 def minimax(board):
     """
     Returns the optimal action for the current player on the board.
     """
-    pass
+    if terminal(board):
+        return utility(board)
+    
+    current_player = player(board)
+    possible_moves = actions(board)
+
+    if current_player == X:
+        optimal_ultility = -math.inf
+        for move in possible_moves:
+            # If there is a move for higher ultility
+            if max_ultility(result(board, move)) > optimal_ultility:
+                optimal_ultility = max_ultility(result(board, move))
+                optimal_move = move
+
+    elif current_player == O:
+        optimal_ultility = math.inf
+        for move in possible_moves:
+            if min_ultility(result(board, move)) > optimal_ultility:
+                optimal_ultility = min_ultility(result(board, move))
+                optimal_move = move
+    
+    return optimal_move
