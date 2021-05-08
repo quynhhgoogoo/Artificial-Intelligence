@@ -139,12 +139,12 @@ def min_ultility(board):
         return utility(board)
 
     # As opponent is max player, they attempt to gain higher score    
-    opponent = math.inf
+    player_min = math.inf
     possible_moves = actions(board)
 
     for move in possible_moves:
         result_board = result(board, move)
-        player_min = min(opponent, max_ultility(result_board))
+        player_min = min(player_min, max_ultility(result_board))
 
     return player_min
 
@@ -156,12 +156,12 @@ def max_ultility(board):
         return utility(board)
 
     # As opponent is min player, they attempt to gain lower score    
-    opponent = -math.inf
+    player_max = -math.inf
     possible_moves = actions(board)
 
     for move in possible_moves:
         result_board = result(board, move)
-        player_max = max(opponent, min_ultility(result_board))
+        player_max = max(player_max, min_ultility(result_board))
 
     return player_max
 
@@ -174,20 +174,23 @@ def minimax(board):
     
     current_player = player(board)
     possible_moves = actions(board)
+    optimal_move = []
 
     if current_player == X:
         optimal_ultility = -math.inf
         for move in possible_moves:
             # If there is a move for higher ultility
-            if max_ultility(result(board, move)) > optimal_ultility:
-                optimal_ultility = max_ultility(result(board, move))
+            max_move = min_ultility(result(board, move))
+            if max_move > optimal_ultility:
+                optimal_ultility = max_move
                 optimal_move = move
 
     elif current_player == O:
         optimal_ultility = math.inf
         for move in possible_moves:
-            if min_ultility(result(board, move)) > optimal_ultility:
-                optimal_ultility = min_ultility(result(board, move))
+            min_move = max_ultility(result(board, move))
+            if min_move < optimal_ultility:
+                optimal_ultility = min_move
                 optimal_move = move
     
     return optimal_move
