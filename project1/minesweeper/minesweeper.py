@@ -107,8 +107,7 @@ class Sentence():
         """
         if len(self.cells) == self.count:
             return self.cells
-        else:
-            return None 
+        return None 
 
     def known_safes(self):
         """
@@ -116,8 +115,7 @@ class Sentence():
         """
         if len(self.cells) == 0:
             return self.cells
-        else:
-            return None
+        return None
 
     def mark_mine(self, cell):
         """
@@ -195,11 +193,46 @@ class MinesweeperAI():
         self.moves_made.add(cell)
 
         # mark the cell as safe
-        self.safes.add(cell)
+        if cell not in self.safes:
+            self.safes.add(cell)
+
+        # Find all elements of the neighbour cell
+        neighbors_cell = set()
+
+        # Loop over all cells within one row and column
+        for i in range(cell[0] - 1, cell[0] + 2):
+            for j in range(cell[1] - 1, cell[1] + 2):
+
+                # Ignore the cell itself
+                if (i, j) == cell:
+                    continue
+
+                # Update neighbor cells
+                if 0 <= i < self.height and 0 <= j < self.width:
+                    neighbors_cell.add((i,j))
 
         # add a new sentence to the AI's knowledge base
         # based on the value of `cell` and `count`
-        new_sentence = Sentence(cell, count)
+        new_sentence = Sentence(neighbors_cell, count)
+        self.knowledge.add(new_sentence)
+
+        # mark any additional cells as safe or as mines
+        # if it can be concluded based on the AI's knowledge base
+        for sentence in self.knowledge:
+            for mine in sentence.known_mines():
+                self.mark_mine(mine)
+            for safe in sentence.known_safes():
+                self.mark_safe(safe)
+
+        # add any new sentences to the AI's knowledge base
+        # if they can be inferred from existing knowledge
+        for sentence in self.knowledge:
+            if sentence.cells.issubset(new_sentence.cells):
+                self.knowledge.append(Sentence(new_sentence - sentence, new_sentence.count - sentence.count))
+            elif new_sentence.cells.issubset(sentence.cells):
+                self.knowledge.append(Sentence(sentence - new_sentence, sentence.count - new_sentence.count))
+            else:
+                self.knowledge.append(Sentence(new_sentence, new_sentence.count))
 
     def make_safe_move(self):
         """
