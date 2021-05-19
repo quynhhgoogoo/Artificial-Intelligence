@@ -107,7 +107,7 @@ class Sentence():
         """
         if len(self.cells) == self.count:
             return self.cells
-        return None 
+        return set() 
 
     def known_safes(self):
         """
@@ -115,7 +115,7 @@ class Sentence():
         """
         if len(self.cells) == 0:
             return self.cells
-        return None
+        return set()
 
     def mark_mine(self, cell):
         """
@@ -214,7 +214,7 @@ class MinesweeperAI():
         # add a new sentence to the AI's knowledge base
         # based on the value of `cell` and `count`
         new_sentence = Sentence(neighbors_cell, count)
-        self.knowledge.add(new_sentence)
+        self.knowledge.append(new_sentence)
 
         # mark any additional cells as safe or as mines
         # if it can be concluded based on the AI's knowledge base
