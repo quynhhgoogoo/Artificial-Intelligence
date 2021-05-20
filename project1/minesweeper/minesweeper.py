@@ -227,12 +227,11 @@ class MinesweeperAI():
         # add any new sentences to the AI's knowledge base
         # if they can be inferred from existing knowledge
         for sentence in self.knowledge:
-            if sentence.cells.issubset(new_sentence.cells):
-                self.knowledge.append(Sentence(new_sentence - sentence, new_sentence.count - sentence.count))
-            elif new_sentence.cells.issubset(sentence.cells):
-                self.knowledge.append(Sentence(sentence - new_sentence, sentence.count - new_sentence.count))
-            else:
-                self.knowledge.append(Sentence(new_sentence, new_sentence.count))
+            if new_sentence.cells != sentence.cells:
+                if sentence.cells.issubset(new_sentence.cells):
+                    self.knowledge.append(Sentence(new_sentence.cells-sentence.cells, new_sentence.count-sentence.count))
+                if new_sentence.cells.issubset(sentence.cells):
+                    self.knowledge.append(Sentence(sentence.cells-new_sentence.cells, sentence.count-new_sentence.count))
 
     def make_safe_move(self):
         """
