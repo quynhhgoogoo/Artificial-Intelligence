@@ -2,6 +2,7 @@ import os
 import random
 import re
 import sys
+import copy
 
 DAMPING = 0.85
 SAMPLES = 10000
@@ -63,7 +64,7 @@ def transition_model(corpus, page, damping_factor):
     total_pages = len(corpus)
     total_link_pages = len(corpus[page])
 
-    if link_pages: 
+    if link_page: 
         for page in corpus:
             probability_distribution[page] = (1 - damping_factor)/total_pages
         
@@ -88,12 +89,14 @@ def sample_pagerank(corpus, damping_factor, n):
     PageRank values should sum to 1.
     """
     page_rank_distribution = dict()
+    for page in corpus:
+        page_rank_distribution[page] = 0
 
     # Generate first sample randomly
     page = random.choice(list(corpus.keys()))
 
     # Generate next sample based on previous's sample transistion model
-    for i range(1, n):
+    for i in range(1, n):
         distribution = transition_model(corpus, page, damping_factor)
         for rank in page_rank_distribution:
             page_rank_distribution[rank] = ((i-1) * page_rank_distribution[rank] + distribution[rank]) / i
@@ -113,8 +116,24 @@ def iterate_pagerank(corpus, damping_factor):
     their estimated PageRank value (a value between 0 and 1). All
     PageRank values should sum to 1.
     """
-    raise NotImplementedError
+    ranks = {}
+    for page in corpus:
+        ranks[page] = 1 / len(corpus)
+    
+    change = True
+    while change:
+        change = False
+        distribution = copy.deepcopy(ranks)
+        
+        total = 0
+        for page in distribution:
+            total += distribution[page] / len(corpus[page])
 
+        for page in corpus:
+            ranks[page] = ((1 - damping_factor) / len(corpus) + (damping_factor) * total)
+            change = change or abs( distribution[page] - ranks[page] ) > 0.01
+
+    return ranks
 
 if __name__ == "__main__":
     main()
