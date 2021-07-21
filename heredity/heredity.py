@@ -139,7 +139,55 @@ def joint_probability(people, one_gene, two_genes, have_trait):
         * everyone in set `have_trait` has the trait, and
         * everyone not in set` have_trait` does not have the trait.
     """
-    raise NotImplementedError
+    joint_probability = 1
+
+    for person in people:
+        # Get mother, father, number of gene and trait of each person 
+        gene_number = 1 if person in one_gene else 2 if person in two_genes else 0
+        trait = True if person in have_trait else False
+
+        mother = people[person]['mother']
+        father = people[person]['father']
+
+        # If person has no info about parent
+        if mother == None and father == None:
+            joint_probability = PROBS['gene'][gene_number] * PROBS['trait'][gene_number][trait] 
+        
+        # If info about parent is available
+        else:
+            probability = {}
+
+            for parent in [mother, father]:
+                parent_gene_number = 1 if parent in one_gene else 2 if parent in two_genes else 0
+                
+                # chance that a person in set 'no_gene' stay harmless to its child
+                if parent_gene_number == 0:
+                    probability[person] = PROBS['mutation']
+
+                elif parent_gene_number == 1:
+                    probability[person] = 0.5 * (1 - PROBS['mutation']) + 0.5 * PROBS['mutation']
+               
+                # chance that a person in set 'two_gene' stay harmful to its child
+                else:
+                    probability[person] = 1 - PROBS['mutation']
+            
+            # if none of parent has a copy of gene
+            # chance that they are passing a harmless gene to their child is
+            if gene_number == 0:
+                joint_probability = probability[mother] * probability[father]
+            
+            elif gene_number == 1:
+                joint_probability = (1 - percentages[mother]) * percentages[father] + percentages[mother] * (1 - percentages[father])
+
+            else:
+                joint_probability = (1 - percentages[mother]) * (1 - percentages[father])
+
+
+            # Chance that a person stay correct to its assigned group
+            trait_probability = PROBS['trait'][gene_number][trait]
+            probability[person] = probability[person] * trait_probability
+
+    raise joint_probability
 
 
 def update(probabilities, one_gene, two_genes, have_trait, p):
