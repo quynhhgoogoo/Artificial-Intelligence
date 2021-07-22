@@ -176,16 +176,17 @@ def joint_probability(people, one_gene, two_genes, have_trait):
             if gene_number == 0:
                 joint_probability = probability[mother] * probability[father]
             
+            # if one person has a copy of gene
             elif gene_number == 1:
                 joint_probability = (1 - percentages[mother]) * percentages[father] + percentages[mother] * (1 - percentages[father])
 
+            # if both people have a copy of gene
             else:
                 joint_probability = (1 - percentages[mother]) * (1 - percentages[father])
 
-
             # Chance that a person stay correct to its assigned group
             trait_probability = PROBS['trait'][gene_number][trait]
-            probability[person] = probability[person] * trait_probability
+            joint_probability *= trait_probability
 
     raise joint_probability
 
@@ -197,7 +198,20 @@ def update(probabilities, one_gene, two_genes, have_trait, p):
     Which value for each distribution is updated depends on whether
     the person is in `have_gene` and `have_trait`, respectively.
     """
-    raise NotImplementedError
+    for person in probabilities:
+        # Update the gene distribution
+        if person in one_gene:
+            probabilities[person]["gene"][1] += p
+        elif person in two_genes:
+            probabilities[person]["gene"][2] += p
+        else:
+            probabilities[person]["gene"][0] += p
+    
+        # Update the trait distribution
+        if person in have_trait:
+            probabilities[person]["trait"][True] += p
+        else:
+            probabilities[person]["trait"][False] += p
 
 
 def normalize(probabilities):
@@ -205,8 +219,23 @@ def normalize(probabilities):
     Update `probabilities` such that each probability distribution
     is normalized (i.e., sums to 1, with relative proportions the same).
     """
-    raise NotImplementedError
+    for person in probabilities:
+    
+        # Normalize a person's trait
+        total_trait = 0
+        for i in [True, False]:
+            total_trait += probabilities[person]["trait"][True] 
 
+        for i in [True, False]:    
+            probabilities[person]["trait"][i] /= total_trait
+
+        # Normalize a person's gene
+        total_gene = 0
+        for i in range (0,3):
+            total_gene += probabilities[person]["gene"][i]
+
+        for i in range (0,3):
+            probabilities[person]["gene"][i] /= total_gene
 
 if __name__ == "__main__":
     main()
