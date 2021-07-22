@@ -162,14 +162,14 @@ def joint_probability(people, one_gene, two_genes, have_trait):
                 
                 # chance that a person in set 'no_gene' stay harmless to its child
                 if parent_gene_number == 0:
-                    probability[person] = PROBS['mutation']
+                    probability[parent] = PROBS['mutation']
 
                 elif parent_gene_number == 1:
-                    probability[person] = 0.5 * (1 - PROBS['mutation']) + 0.5 * PROBS['mutation']
+                    probability[parent] = 0.5 * (1 - PROBS['mutation']) + 0.5 * PROBS['mutation']
                
                 # chance that a person in set 'two_gene' stay harmful to its child
                 else:
-                    probability[person] = 1 - PROBS['mutation']
+                    probability[parent] = 1 - PROBS['mutation']
             
             # if none of parent has a copy of gene
             # chance that they are passing a harmless gene to their child is
@@ -178,17 +178,17 @@ def joint_probability(people, one_gene, two_genes, have_trait):
             
             # if one person has a copy of gene
             elif gene_number == 1:
-                joint_probability = (1 - percentages[mother]) * percentages[father] + percentages[mother] * (1 - percentages[father])
+                joint_probability = (1 - probability[mother]) * probability[father] + probability[mother] * (1 - probability[father])
 
             # if both people have a copy of gene
             else:
-                joint_probability = (1 - percentages[mother]) * (1 - percentages[father])
+                joint_probability = (1 - probability[mother]) * (1 - probability[father])
 
             # Chance that a person stay correct to its assigned group
             trait_probability = PROBS['trait'][gene_number][trait]
             joint_probability *= trait_probability
 
-    raise joint_probability
+    return joint_probability
 
 
 def update(probabilities, one_gene, two_genes, have_trait, p):
@@ -220,11 +220,10 @@ def normalize(probabilities):
     is normalized (i.e., sums to 1, with relative proportions the same).
     """
     for person in probabilities:
-    
         # Normalize a person's trait
         total_trait = 0
         for i in [True, False]:
-            total_trait += probabilities[person]["trait"][True] 
+            total_trait += probabilities[person]["trait"][i] 
 
         for i in [True, False]:    
             probabilities[person]["trait"][i] /= total_trait
