@@ -28,10 +28,10 @@ def backtrack(assignment):
         # Add newly assigned variable as a value inside dictionary 
         new_assignment = assignment.copy()
         new_assignment[var] = value
-        print("New assignment variables ", new_assignment[var])
 
         # If assignment value is consistent, continue assigning value to next node
         if consistent(new_assignment):
+            # Adding new variable recursively to assignment until unassigned list is empty
             result = backtrack(new_assignment)
             if result is not None:
                 return result
