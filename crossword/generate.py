@@ -10,6 +10,8 @@ class CrosswordCreator():
         Create new CSP crossword generate.
         """
         self.crossword = crossword
+
+        # Adding all available words inside word list to domain
         self.domains = {
             var: self.crossword.words.copy()
             for var in self.crossword.variables
@@ -99,7 +101,11 @@ class CrosswordCreator():
         (Remove any values that are inconsistent with a variable's unary
          constraints; in this case, the length of the word.)
         """
-        raise NotImplementedError
+        for variable in self.crossword.variables:
+            for word in self.crossword.words:
+                # If length of word is not consistent
+                if len(word) != variable.length:
+                    self.domains[variable].remove(word)
 
     def revise(self, x, y):
         """
@@ -110,7 +116,27 @@ class CrosswordCreator():
         Return True if a revision was made to the domain of `x`; return
         False if no revision was made.
         """
-        raise NotImplementedError
+        revision = False
+        overlap = self.crossword.overlaps[x, y]
+
+        if overlap:
+            # Get the coordinate of overlapping position 
+            i, j = overlap
+            removed_elements = set()
+            word_matched = False
+
+            for x in self.domains[x]:
+                for y in self.domains[y]:
+                    # If x and y have same word in overlapping position
+                    if x[i] == y[i]:
+                        word_matched = True
+                        break
+
+                    # Remove words from domain if overlapping position is not matching
+                    if not word_matched:
+                        self.domains[x].remove(x)
+                        revision = True
+        return revision
 
     def ac3(self, arcs=None):
         """
