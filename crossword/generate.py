@@ -147,14 +147,41 @@ class CrosswordCreator():
         Return True if arc consistency is enforced and no domains are empty;
         return False if one or more domains end up empty.
         """
-        raise NotImplementedError
+        # Get the initial list of arcs
+        if arcs is None:
+            # Stare with initial queue of all of the arcs in the problem
+            queue = []
+            for word in self.crossword.variables:
+                for neighbors_word in self.crossword.neighbors(var1):
+                    queue.append((word, neighbors_word))
+        else:
+            queue = list(arcs)
+
+        # Revise each arc in the queue
+        while queue:
+            x, y = queue.pop(0)
+            list_y = []
+            list_y.append(y)
+
+            # If there is revision made for domain x
+            if self.revise(x, y):
+                if len(self.domains[x]) == 0:
+                    return False
+                
+                for neighbor in self.crossword.neighbors(x) - list_y:
+                    queue.append(x, neighbor)
+        return True                
 
     def assignment_complete(self, assignment):
         """
         Return True if `assignment` is complete (i.e., assigns a value to each
         crossword variable); return False otherwise.
         """
-        raise NotImplementedError
+        complete = True
+        for var in self.domains:
+            if var not in assignment:
+                complete = False
+        return complete
 
     def consistent(self, assignment):
         """
