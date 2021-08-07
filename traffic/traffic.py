@@ -98,14 +98,20 @@ def get_model():
         # Max-pooling layer, using 2x2 pool size
         tf.keras.layers.MaxPooling2D(pool_size=(2, 2)),
 
+        tf.keras.layers.Conv2D(
+            32, (3, 3), activation="relu", input_shape=(IMG_WIDTH, IMG_HEIGHT, 3)
+        ),
+        tf.keras.layers.MaxPooling2D(pool_size=(2, 2)),
+
+
         # Flatten units
         tf.keras.layers.Flatten(),
 
         # Add a hidden layer with dropout
         tf.keras.layers.Dense(128, activation="relu"),
-        tf.keras.layers.Dropout(0.5),
+        tf.keras.layers.Dropout(0.35),
 
-        # Add an output layer with output units for all 10 digits
+        # Add an output layer with output units for all NUM_CATEGORIES
         tf.keras.layers.Dense(NUM_CATEGORIES, activation="softmax")
     ])
 
