@@ -135,7 +135,7 @@ def top_sentences(query, sentences, idfs, n):
     the query, ranked according to idf. If there are ties, preference should
     be given to sentences that have a higher query term density.
     """
-    sentences = dict()
+    sentences_list = dict()
 
     for sentence in sentences:
         idf = 0
@@ -146,14 +146,14 @@ def top_sentences(query, sentences, idfs, n):
             if word in sentences[sentence]:
                 word_matched += 1
                 idf += idfs[word]
-        if idf != 0:
-            density = word_matched / len (sentences[sentence])
-            sentences[sentence] = (idf, density)
+        
+        density = word_matched / len (sentences[sentence])
+        sentences_list[sentence] = (idf, density)
     
     # Sort and get top n matched sentences for file
-    sentences = [k for k, v in sorted(sentences.items(), key=lambda x: (x[1][0], x[1][1]), reverse=True)]
+    sentences_list = [k for k, v in sorted(sentences_list.items(), key=lambda x: (x[1][0], x[1][1]), reverse=True)]
     
-    return sentences[:n]
+    return sentences_list[:n]
                
 
 if __name__ == "__main__":
