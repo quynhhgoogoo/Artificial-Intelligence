@@ -55,11 +55,10 @@ def load_files(directory):
 
     for file in os.listdir(directory):
         file_path = os.path.join(directory, file)
-        file_name = file_path[-4:]
 
         with open(file_path, encoding="utf-8") as f:
             contents = f.read()
-            file_list[file_name] = contents
+            file_list[file] = contents
 
     return file_list
 
@@ -119,18 +118,14 @@ def top_files(query, files, idfs, n):
     # Calculate TF-IDFs
     tfidfs = dict()
     for filename in files:
-        tfidfs[filename] = []
-        for word in files[filename]:
-            tf = files[filename][word]
-            tfidfs[filename].append( (word, tf * idfs[word]) )
+        tfidf = 0
+        for word in query:
+            tfidf += files[filename].count(word) * idfs[word]
+        tfidfs[filename] = tfidf
     
-    # Sort and get top 5 TF-IDFs for file
-    for filename in files:
-        tfidfs[filename].sort(key = lambda tfdif: tfdif[1], reverse=True)
-        tfidfs[filename] = tfidfs[filename][:n]
-    term, score = tfidfs[filename]
-    
-    return term
+    # Sort and get top n TF-IDFs for file
+    tfidfs = [k for k, v in sorted(tfidfs.items(), key=lambda x: x[1], reverse=True)]
+    return tfidfs[:n]
 
 def top_sentences(query, sentences, idfs, n):
     """
@@ -140,8 +135,26 @@ def top_sentences(query, sentences, idfs, n):
     the query, ranked according to idf. If there are ties, preference should
     be given to sentences that have a higher query term density.
     """
-    raise NotImplementedError
+    sentences = dict()
 
+    for sentence in sentences:
+        idf = 0
+        word_matched = 0
+        
+        for word in query:
+            # Check if words in query match with words in sentence
+            if word in sentences[sentence]:
+                word_matched += 1
+                idf += idfs[word]
+        if idf != 0:
+            density = word_matched / len (sentences[sentence])
+            sentences[sentence] = (idf, density)
+    
+    # Sort and get top n matched sentences for file
+    sentences = [k for k, v in sorted(sentences.items(), key=lambda x: (x[1][0], x[1][1]), reverse=True)]
+    
+    return sentences[:n]
+               
 
 if __name__ == "__main__":
     main()
