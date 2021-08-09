@@ -18,7 +18,7 @@ NONTERMINALS = """
 S -> NP VP
 
 AP -> Adj | Adj AP
-NP -> N | Det NP | AP NP | N PP
+NP -> N | Det NP | AP NP | N PP | N Conj N
 PP -> P NP
 VP -> V | V NP | V NP PP
 """
